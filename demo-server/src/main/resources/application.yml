@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: pakeplus-demo-server
+  mvc:
+    problemdetails:
+      enabled: false
+
+logging:
+  level:
+    root: info
+    com.oaikes.pakeplus.demo: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
