@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PakePlus 演示中心</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --panel: #ffffff;
+            --line: #e3e8f0;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #2f6bff;
+            --primary-dark: #1f4fd8;
+            --success: #12b76a;
+            --danger: #f04438;
+            --shadow: 0 6px 18px rgba(31, 41, 55, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header .subtitle {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 9px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background: var(--primary);
+            color: #fff;
+            transition: background 0.15s ease;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button.ghost {
+            background: #fff;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        button.ghost:hover {
+            background: #eef3ff;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: #f2f6ff;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 14px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 160px;
+        }
+
+        .field.grow {
+            flex: 1 1 260px;
+        }
+
+        .field label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        input,
+        select,
+        textarea {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 9px 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            color: var(--text);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 72px;
+        }
+
+        .result {
+            background: #fafbfe;
+            border: 1px dashed var(--line);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.7;
+            word-break: break-all;
+            min-height: 52px;
+            white-space: pre-wrap;
+        }
+
+        .result .key {
+            color: var(--muted);
+        }
+
+        .result.error {
+            border-color: #f7c9c5;
+            background: #fff6f5;
+            color: var(--danger);
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .kpi {
+            background: #f8faff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .kpi .label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .kpi .value {
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .chart-box h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .table th,
+        .table td {
+            border-bottom: 1px solid var(--line);
+            padding: 8px 6px;
+            text-align: left;
+        }
+
+        .table th {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            background: #1f2937;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        details.settings summary {
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        details.settings .form-row {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="header">
+        <div>
+            <h1>PakePlus 演示中心</h1>
+            <p class="subtitle">hello world / 哈希算法 / 冒泡排序 三类接口执行结果与调用情况报表</p>
+        </div>
+        <div class="toolbar">
+            <button id="btnExportCurrent" class="ghost" type="button">导出当前页</button>
+            <button id="btnExportAll" type="button">导出全部结果</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <details class="settings">
+            <summary>调用人信息（用于埋点统计：人员类型 / 人员层级 / 人员部门）</summary>
+            <div class="form-row">
+                <div class="field">
+                    <label for="callerId">调用人 ID</label>
+                    <input id="callerId" value="demo-user-01"/>
+                </div>
+                <div class="field">
+                    <label for="callerName">调用人姓名</label>
+                    <input id="callerName" value="演示用户"/>
+                </div>
+                <div class="field">
+                    <label for="userType">人员类型</label>
+                    <input id="userType" value="INTERNAL"/>
+                </div>
+                <div class="field">
+                    <label for="userLevel">人员层级</label>
+                    <input id="userLevel" value="P6"/>
+                </div>
+                <div class="field">
+                    <label for="userDept">人员部门</label>
+                    <input id="userDept" value="技术部"/>
+                </div>
+                <div class="field grow">
+                    <label for="apiBase">服务地址（留空表示同源）</label>
+                    <input id="apiBase" placeholder="https://your-server.example.com"/>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <button id="btnSaveCaller" class="ghost" type="button">保存</button>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <div class="card">
+        <div class="tabs" role="tablist">
+            <button class="tab active" type="button" data-tab="hello">hello world</button>
+            <button class="tab" type="button" data-tab="hash">哈希算法</button>
+            <button class="tab" type="button" data-tab="sort">冒泡排序</button>
+        </div>
+
+        <section class="panel active" id="panel-hello">
+            <div class="form-row">
+                <div class="field grow">
+                    <label for="helloName">称呼（可选，留空输出 Hello, World!）</label>
+                    <input id="helloName" placeholder="PakePlus"/>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <button id="btnHello" type="button">执行</button>
+                </div>
+            </div>
+            <div class="result" id="helloResult">尚未执行</div>
+        </section>
+
+        <section class="panel" id="panel-hash">
+            <div class="form-row">
+                <div class="field grow">
+                    <label for="hashContent">待计算内容</label>
+                    <textarea id="hashContent">Hello PakePlus</textarea>
+                </div>
+                <div class="field">
+                    <label for="hashAlgorithm">算法</label>
+                    <select id="hashAlgorithm">
+                        <option value="sha-256">SHA-256</option>
+                        <option value="sha-512">SHA-512</option>
+                        <option value="md5">MD5</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <button id="btnHash" type="button">执行</button>
+                </div>
+            </div>
+            <div class="result" id="hashResult">尚未执行</div>
+        </section>
+
+        <section class="panel" id="panel-sort">
+            <div class="form-row">
+                <div class="field grow">
+                    <label for="sortValues">待排序数组（英文逗号分隔）</label>
+                    <input id="sortValues" value="5,3,8,1,9,2,7"/>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <button id="btnSort" type="button">执行</button>
+                </div>
+            </div>
+            <div class="result" id="sortResult">尚未执行</div>
+        </section>
+    </div>
+
+    <div class="card">
+        <div class="section-title">
+            <h2>调用情况报表</h2>
+            <div class="toolbar">
+                <div class="field">
+                    <label for="reportDimension">统计维度</label>
+                    <select id="reportDimension">
+                        <option value="userType">人员类型</option>
+                        <option value="userLevel">人员层级</option>
+                        <option value="userDept">人员部门</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="reportDays">统计天数</label>
+                    <select id="reportDays">
+                        <option value="1">最近 1 天</option>
+                        <option value="7" selected>最近 7 天</option>
+                        <option value="30">最近 30 天</option>
+                        <option value="90">最近 90 天</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <button id="btnRefreshReport" type="button">刷新报表</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi">
+                <div class="label">调用总次数</div>
+                <div class="value" id="kpiTotal">0</div>
+            </div>
+            <div class="kpi">
+                <div class="label">调用人数</div>
+                <div class="value" id="kpiCallers">0</div>
+            </div>
+            <div class="kpi">
+                <div class="label">成功次数</div>
+                <div class="value" id="kpiSuccess">0</div>
+            </div>
+            <div class="kpi">
+                <div class="label">失败次数</div>
+                <div class="value" id="kpiFail">0</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-box">
+                <h3>折线图：调用趋势</h3>
+                <canvas id="lineChart" height="220"></canvas>
+                <div class="hint" id="lineLegend"></div>
+            </div>
+            <div class="chart-box">
+                <h3>饼图：维度占比</h3>
+                <canvas id="pieChart" height="220"></canvas>
+                <div class="hint" id="pieLegend"></div>
+            </div>
+            <div class="chart-box">
+                <h3>柱状图：维度调用次数</h3>
+                <canvas id="barChart" height="220"></canvas>
+                <div class="hint" id="barLegend"></div>
+            </div>
+        </div>
+
+        <table class="table" id="apiTable">
+            <thead>
+            <tr>
+                <th>接口</th>
+                <th>调用次数</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+    (function () {
+        'use strict';
+
+        var COLORS = ['#2f6bff', '#12b76a', '#f79009', '#f04438', '#7a5af8', '#06aed4', '#e478b7', '#8b8d97'];
+        var STORAGE_KEY = 'pakeplus.demo.caller';
+
+        var state = {
+            activeTab: 'hello',
+            caller: {
+                callerId: 'demo-user-01',
+                callerName: '演示用户',
+                userType: 'INTERNAL',
+                userLevel: 'P6',
+                userDept: '技术部',
+                apiBase: ''
+            },
+            report: null
+        };
+
+        function byId(id) {
+            return document.getElementById(id);
+        }
+
+        function apiBase() {
+            if (state.caller.apiBase) {
+                return state.caller.apiBase.replace(/\/+$/, '');
+            }
+            if (window.location.protocol === 'file:') {
+                return 'http://127.0.0.1:8080';
+            }
+            return '';
+        }
+
+        function buildHeaders(extra) {
+            var headers = {
+                'X-User-Id': encodeHeaderValue(state.caller.callerId || 'anonymous'),
+                'X-User-Name': encodeHeaderValue(state.caller.callerName || state.caller.callerId || 'anonymous'),
+                'X-User-Type': encodeHeaderValue(state.caller.userType || 'UNKNOWN'),
+                'X-User-Level': encodeHeaderValue(state.caller.userLevel || 'UNKNOWN'),
+                'X-User-Dept': encodeHeaderValue(state.caller.userDept || 'UNKNOWN')
+            };
+            if (extra) {
+                Object.keys(extra).forEach(function (key) {
+                    headers[key] = extra[key];
+                });
+            }
+            return headers;
+        }
+
+        function encodeHeaderValue(value) {
+            return encodeURIComponent(String(value));
+        }
+
+        function toast(message) {
+            var el = byId('toast');
+            el.textContent = message;
+            el.classList.add('show');
+            window.setTimeout(function () {
+                el.classList.remove('show');
+            }, 2200);
+        }
+
+        function renderResult(elementId, lines) {
+            var el = byId(elementId);
+            el.classList.remove('error');
+            el.innerHTML = lines.map(function (line) {
+                return '<div><span class="key">' + line.label + '：</span>' + escapeHtml(String(line.value)) + '</div>';
+            }).join('');
+        }
+
+        function renderError(elementId, message) {
+            var el = byId(elementId);
+            el.classList.add('error');
+            el.textContent = message;
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function requestJson(path, options) {
+            var requestOptions = options || {};
+            var headers = buildHeaders(requestOptions.body ? {'Content-Type': 'application/json'} : null);
+            return fetch(apiBase() + path, {
+                method: requestOptions.method || 'GET',
+                headers: headers,
+                body: requestOptions.body ? JSON.stringify(requestOptions.body) : undefined
+            }).then(function (response) {
+                return response.text().then(function (text) {
+                    var payload = null;
+                    try {
+                        payload = text ? JSON.parse(text) : null;
+                    } catch (parseError) {
+                        throw new Error('响应解析失败：' + text);
+                    }
+                    if (!response.ok || (payload && payload.success === false)) {
+                        var message = payload && (payload.userTip || payload.errorMessage)
+                            ? (payload.userTip + '（' + payload.errorMessage + '）')
+                            : ('请求失败，状态码 ' + response.status);
+                        throw new Error(message);
+                    }
+                    return payload ? payload.data : null;
+                });
+            });
+        }
+
+        function saveCaller() {
+            state.caller = {
+                callerId: byId('callerId').value.trim(),
+                callerName: byId('callerName').value.trim(),
+                userType: byId('userType').value.trim(),
+                userLevel: byId('userLevel').value.trim(),
+                userDept: byId('userDept').value.trim(),
+                apiBase: byId('apiBase').value.trim()
+            };
+            try {
+                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.caller));
+            } catch (storageError) {
+                // 本地存储不可用时忽略，配置仅在当前会话生效
+            }
+            toast('调用人信息已保存');
+        }
+
+        function loadCaller() {
+            var raw = null;
+            try {
+                raw = window.localStorage.getItem(STORAGE_KEY);
+            } catch (storageError) {
+                raw = null;
+            }
+            if (!raw) {
+                return;
+            }
+            try {
+                var saved = JSON.parse(raw);
+                Object.keys(state.caller).forEach(function (key) {
+                    if (saved[key] !== undefined && saved[key] !== null && saved[key] !== '') {
+                        state.caller[key] = saved[key];
+                    }
+                });
+            } catch (parseError) {
+                state.caller = state.caller;
+            }
+            byId('callerId').value = state.caller.callerId;
+            byId('callerName').value = state.caller.callerName;
+            byId('userType').value = state.caller.userType;
+            byId('userLevel').value = state.caller.userLevel;
+            byId('userDept').value = state.caller.userDept;
+            byId('apiBase').value = state.caller.apiBase;
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (tab) {
+                tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('.panel'), function (panel) {
+                panel.classList.toggle('active', panel.id === 'panel-' + tabName);
+            });
+        }
+
+        function runHello() {
+            var name = byId('helloName').value.trim();
+            var path = '/api/hello-world' + (name ? '?name=' + encodeURIComponent(name) : '');
+            requestJson(path).then(function (data) {
+                renderResult('helloResult', [
+                    {label: '消息', value: data.message},
+                    {label: '服务端时间', value: data.serverTime}
+                ]);
+            }).catch(function (error) {
+                renderError('helloResult', error.message);
+            });
+        }
+
+        function runHash() {
+            var content = byId('hashContent').value;
+            if (!content) {
+                renderError('hashResult', '待计算内容不能为空');
+                return;
+            }
+            requestJson('/api/hash', {
+                method: 'POST',
+                body: {content: content, algorithm: byId('hashAlgorithm').value}
+            }).then(function (data) {
+                renderResult('hashResult', [
+                    {label: '算法', value: data.algorithm},
+                    {label: '原文', value: data.content},
+                    {label: '摘要', value: data.digest},
+                    {label: '摘要长度', value: data.digestLength}
+                ]);
+            }).catch(function (error) {
+                renderError('hashResult', error.message);
+            });
+        }
+
+        function parseValues(text) {
+            return text.split(',').map(function (item) {
+                return item.trim();
+            }).filter(function (item) {
+                return item.length > 0;
+            }).map(function (item) {
+                var value = Number(item);
+                if (!Number.isInteger(value)) {
+                    throw new Error('数组元素必须为整数：' + item);
+                }
+                return value;
+            });
+        }
+
+        function runSort() {
+            var values;
+            try {
+                values = parseValues(byId('sortValues').value || '');
+            } catch (parseError) {
+                renderError('sortResult', parseError.message);
+                return;
+            }
+            if (values.length === 0) {
+                renderError('sortResult', '待排序数组不能为空');
+                return;
+            }
+            requestJson('/api/sort', {method: 'POST', body: {values: values}}).then(function (data) {
+                renderResult('sortResult', [
+                    {label: '原始数组', value: data.originalValues.join(', ')},
+                    {label: '排序结果', value: data.sortedValues.join(', ')},
+                    {label: '比较次数', value: data.compareCount},
+                    {label: '交换次数', value: data.swapCount},
+                    {label: '耗时(ms)', value: data.costMillis}
+                ]);
+            }).catch(function (error) {
+                renderError('sortResult', error.message);
+            });
+        }
+
+        function refreshReport() {
+            var dimension = byId('reportDimension').value;
+            var days = byId('reportDays').value;
+            requestJson('/api/reports?dimension=' + encodeURIComponent(dimension) + '&days=' + encodeURIComponent(days))
+                .then(function (data) {
+                    state.report = data;
+                    renderReport(data);
+                }).catch(function (error) {
+                    toast('报表加载失败：' + error.message);
+                });
+        }
+
+        function renderReport(report) {
+            byId('kpiTotal').textContent = report.totalCount;
+            byId('kpiCallers').textContent = report.distinctCallerCount;
+            byId('kpiSuccess').textContent = report.successCount;
+            byId('kpiFail').textContent = report.failCount;
+
+            drawLineChart(byId('lineChart'), report.lineChart);
+            drawPieChart(byId('pieChart'), report.pieChart.points);
+            drawBarChart(byId('barChart'), report.barChart.points);
+
+            byId('lineLegend').textContent = '横轴：日期；纵轴：调用次数；共 '
+                + report.lineChart.series.length + ' 条维度折线';
+            byId('pieLegend').textContent = report.pieChart.title;
+            byId('barLegend').textContent = report.barChart.title;
+
+            var tbody = byId('apiTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            if (!report.apiPoints || report.apiPoints.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2">暂无调用数据</td></tr>';
+                return;
+            }
+            report.apiPoints.forEach(function (point) {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td>' + escapeHtml(point.name) + '</td><td>' + point.value + '</td>';
+                tbody.appendChild(row);
+            });
+        }
+
+        function prepareCanvas(canvas, cssHeight) {
+            var ratio = window.devicePixelRatio || 1;
+            var cssWidth = canvas.clientWidth || 320;
+            canvas.width = Math.round(cssWidth * ratio);
+            canvas.height = Math.round(cssHeight * ratio);
+            canvas.style.height = cssHeight + 'px';
+            var context = canvas.getContext('2d');
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            context.clearRect(0, 0, cssWidth, cssHeight);
+            return {ctx: context, width: cssWidth, height: cssHeight};
+        }
+
+        function maxOf(values) {
+            var max = 0;
+            values.forEach(function (value) {
+                if (value > max) {
+                    max = value;
+                }
+            });
+            return max;
+        }
+
+        function drawLineChart(canvas, lineChart) {
+            var surface = prepareCanvas(canvas, 220);
+            var ctx = surface.ctx;
+            var width = surface.width;
+            var height = surface.height;
+            var padding = {top: 12, right: 12, bottom: 26, left: 34};
+            var plotWidth = Math.max(10, width - padding.left - padding.right);
+            var plotHeight = Math.max(10, height - padding.top - padding.bottom);
+            var axis = lineChart.axis || [];
+            var series = lineChart.series || [];
+
+            var allValues = [];
+            series.forEach(function (item) {
+                allValues = allValues.concat(item.values || []);
+            });
+            var maxValue = Math.max(1, maxOf(allValues));
+            var steps = 4;
+
+            ctx.strokeStyle = '#e3e8f0';
+            ctx.fillStyle = '#9aa1ac';
+            ctx.font = '11px sans-serif';
+            ctx.lineWidth = 1;
+            for (var step = 0; step <= steps; step++) {
+                var y = padding.top + plotHeight - (plotHeight * step / steps);
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(padding.left + plotWidth, y);
+                ctx.stroke();
+                var label = Math.round(maxValue * step / steps);
+                ctx.fillText(String(label), 4, y + 4);
+            }
+
+            var pointCount = axis.length;
+            var stepX = pointCount > 1 ? plotWidth / (pointCount - 1) : 0;
+            axis.forEach(function (label, index) {
+                if (pointCount > 8 && index % Math.ceil(pointCount / 6) !== 0 && index !== pointCount - 1) {
+                    return;
+                }
+                ctx.fillText(label.slice(5), padding.left + stepX * index - 14, height - 8);
+            });
+
+            series.forEach(function (item, seriesIndex) {
+                var color = COLORS[seriesIndex % COLORS.length];
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                (item.values || []).forEach(function (value, index) {
+                    var x = padding.left + stepX * index;
+                    var y = padding.top + plotHeight - (plotHeight * value / maxValue);
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+                (item.values || []).forEach(function (value, index) {
+                    var x = padding.left + stepX * index;
+                    var y = padding.top + plotHeight - (plotHeight * value / maxValue);
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            });
+        }
+
+        function drawPieChart(canvas, points) {
+            var surface = prepareCanvas(canvas, 220);
+            var ctx = surface.ctx;
+            var width = surface.width;
+            var height = surface.height;
+            var total = 0;
+            points.forEach(function (point) {
+                total += point.value;
+            });
+            var centerX = Math.min(width / 2, 110);
+            var centerY = height / 2;
+            var radius = Math.min(centerX, centerY) - 12;
+            if (total === 0) {
+                ctx.fillStyle = '#9aa1ac';
+                ctx.font = '13px sans-serif';
+                ctx.fillText('暂无数据', centerX - 26, centerY);
+                return;
+            }
+            var startAngle = -Math.PI / 2;
+            points.forEach(function (point, index) {
+                var angle = Math.PI * 2 * point.value / total;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + angle);
+                ctx.closePath();
+                ctx.fillStyle = COLORS[index % COLORS.length];
+                ctx.fill();
+                startAngle += angle;
+            });
+            var legendX = centerX + radius + 16;
+            var legendY = 20;
+            ctx.font = '12px sans-serif';
+            points.forEach(function (point, index) {
+                ctx.fillStyle = COLORS[index % COLORS.length];
+                ctx.fillRect(legendX, legendY - 8, 9, 9);
+                ctx.fillStyle = '#1f2937';
+                var percent = (point.value * 100 / total).toFixed(1);
+                ctx.fillText(point.name + ' ' + point.value + ' (' + percent + '%)', legendX + 14, legendY);
+                legendY += 18;
+            });
+        }
+
+        function drawBarChart(canvas, points) {
+            var surface = prepareCanvas(canvas, 220);
+            var ctx = surface.ctx;
+            var width = surface.width;
+            var height = surface.height;
+            var padding = {top: 14, right: 12, bottom: 30, left: 34};
+            var plotWidth = Math.max(10, width - padding.left - padding.right);
+            var plotHeight = Math.max(10, height - padding.top - padding.bottom);
+            var maxValue = Math.max(1, maxOf(points.map(function (point) {
+                return point.value;
+            })));
+            var steps = 4;
+            ctx.strokeStyle = '#e3e8f0';
+            ctx.fillStyle = '#9aa1ac';
+            ctx.font = '11px sans-serif';
+            for (var step = 0; step <= steps; step++) {
+                var y = padding.top + plotHeight - (plotHeight * step / steps);
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(padding.left + plotWidth, y);
+                ctx.stroke();
+                ctx.fillText(String(Math.round(maxValue * step / steps)), 4, y + 4);
+            }
+            if (points.length === 0) {
+                ctx.fillStyle = '#9aa1ac';
+                ctx.font = '13px sans-serif';
+                ctx.fillText('暂无数据', padding.left + 10, padding.top + plotHeight / 2);
+                return;
+            }
+            var slot = plotWidth / points.length;
+            var barWidth = Math.min(38, slot * 0.6);
+            points.forEach(function (point, index) {
+                var barHeight = plotHeight * point.value / maxValue;
+                var x = padding.left + slot * index + (slot - barWidth) / 2;
+                var y = padding.top + plotHeight - barHeight;
+                ctx.fillStyle = COLORS[index % COLORS.length];
+                ctx.fillRect(x, y, barWidth, barHeight);
+                ctx.fillStyle = '#1f2937';
+                ctx.font = '11px sans-serif';
+                ctx.fillText(String(point.value), x, y - 4);
+                ctx.fillStyle = '#6b7280';
+                var text = point.name.length > 6 ? point.name.slice(0, 6) + '…' : point.name;
+                ctx.fillText(text, x - 4, padding.top + plotHeight + 16);
+            });
+        }
+
+        function exportResults(page) {
+            var params = ['page=' + encodeURIComponent(page)];
+            if (page === 'hash' || page === 'all') {
+                params.push('content=' + encodeURIComponent(byId('hashContent').value));
+            }
+            if (page === 'sort' || page === 'all') {
+                params.push('values=' + encodeURIComponent(byId('sortValues').value));
+            }
+            if (page === 'report' || page === 'all') {
+                params.push('dimension=' + encodeURIComponent(byId('reportDimension').value));
+                params.push('days=' + encodeURIComponent(byId('reportDays').value));
+            }
+            var url = apiBase() + '/api/exports?' + params.join('&');
+            fetch(url, {headers: buildHeaders()})
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('导出失败，状态码 ' + response.status);
+                    }
+                    var disposition = response.headers.get('Content-Disposition') || '';
+                    var match = /filename="?([^";]+)"?/.exec(disposition);
+                    var fileName = match ? match[1] : ('demo-result-' + page + '.csv');
+                    return response.blob().then(function (blob) {
+                        downloadBlob(blob, fileName);
+                    });
+                })
+                .catch(function (error) {
+                    toast(error.message);
+                });
+        }
+
+        function downloadBlob(blob, fileName) {
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                window.navigator.msSaveOrOpenBlob(blob, fileName);
+                return;
+            }
+            var objectUrl = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = objectUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.setTimeout(function () {
+                URL.revokeObjectURL(objectUrl);
+            }, 1000);
+            toast('已开始下载 ' + fileName);
+        }
+
+        function bindEvents() {
+            Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (tab) {
+                tab.addEventListener('click', function () {
+                    switchTab(tab.getAttribute('data-tab'));
+                });
+            });
+            byId('btnSaveCaller').addEventListener('click', saveCaller);
+            byId('btnHello').addEventListener('click', runHello);
+            byId('btnHash').addEventListener('click', runHash);
+            byId('btnSort').addEventListener('click', runSort);
+            byId('btnRefreshReport').addEventListener('click', refreshReport);
+            byId('reportDimension').addEventListener('change', refreshReport);
+            byId('reportDays').addEventListener('change', refreshReport);
+            byId('btnExportCurrent').addEventListener('click', function () {
+                exportResults(state.activeTab);
+            });
+            byId('btnExportAll').addEventListener('click', function () {
+                exportResults('all');
+            });
+            window.addEventListener('resize', function () {
+                if (state.report) {
+                    renderReport(state.report);
+                }
+            });
+        }
+
+        function init() {
+            loadCaller();
+            bindEvents();
+            refreshReport();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    })();
+</script>
+</body>
+</html>
