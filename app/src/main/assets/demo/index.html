@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>PakePlus 演示中心</title>
+<style>
+    :root {
+        --brand: #2f6bff;
+        --brand-soft: #eaf0ff;
+        --ink: #1b1f27;
+        --muted: #6b7280;
+        --line: #e5e8ef;
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --ok: #12a35b;
+        --warn: #e0483d;
+        --radius: 14px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        padding-bottom: 32px;
+    }
+    header {
+        padding: 18px 16px 12px;
+        background: linear-gradient(135deg, #2f6bff, #5b8cff);
+        color: #fff;
+    }
+    header h1 { margin: 0 0 4px; font-size: 19px; font-weight: 600; }
+    header p { margin: 0; font-size: 12px; opacity: .9; }
+    .caller {
+        margin-top: 10px;
+        font-size: 12px;
+        background: rgba(255, 255, 255, .18);
+        border-radius: 10px;
+        padding: 8px 10px;
+        line-height: 1.6;
+    }
+    main { padding: 12px 16px 0; }
+    .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(27, 31, 39, .07);
+        padding: 14px;
+        margin-bottom: 14px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 15px; }
+    .tabs {
+        display: flex;
+        gap: 8px;
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 6px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 12px rgba(27, 31, 39, .07);
+    }
+    .tab {
+        flex: 1;
+        border: 0;
+        background: transparent;
+        padding: 10px 6px;
+        border-radius: 10px;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 500;
+    }
+    .tab.active { background: var(--brand-soft); color: var(--brand); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    label.field { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="number"], select, textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        background: #fff;
+        color: var(--ink);
+        font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 68px; }
+    .row { display: flex; gap: 10px; }
+    .row > * { flex: 1; min-width: 0; }
+    .actions { display: flex; gap: 10px; margin-top: 12px; }
+    button.primary, button.ghost {
+        flex: 1;
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 12px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    button.primary { background: var(--brand); color: #fff; }
+    button.ghost { background: var(--brand-soft); color: var(--brand); }
+    button:active { opacity: .82; }
+    .result {
+        margin-top: 12px;
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 13px;
+        line-height: 1.7;
+        word-break: break-all;
+        min-height: 46px;
+        color: var(--ink);
+        background: #fbfcff;
+    }
+    .result .label { color: var(--muted); font-size: 12px; }
+    .result .value { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .error { color: var(--warn); }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat {
+        background: var(--brand-soft);
+        border-radius: 12px;
+        padding: 10px 12px;
+    }
+    .stat .k { font-size: 12px; color: var(--muted); }
+    .stat .v { font-size: 18px; font-weight: 600; margin-top: 2px; }
+    .chart-title { font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
+    canvas { width: 100%; display: block; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 500; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .tag { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); }
+    .tag.fail { background: #fdecea; color: var(--warn); }
+</style>
+</head>
+<body>
+<header>
+    <h1>PakePlus 演示中心</h1>
+    <p>Hello World · 哈希算法 · 冒泡排序 · 调用埋点报表</p>
+    <div class="caller" id="callerBar">正在读取调用人信息…</div>
+</header>
+
+<main>
+    <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="hello" role="tab">Hello World</button>
+        <button class="tab" data-tab="hash" role="tab">哈希算法</button>
+        <button class="tab" data-tab="sort" role="tab">冒泡排序</button>
+        <button class="tab" data-tab="track" role="tab">调用报表</button>
+    </div>
+
+    <section class="panel active" id="panel-hello">
+        <div class="card">
+            <h2>Hello World 接口</h2>
+            <label class="field" for="helloName">调用方名称</label>
+            <input type="text" id="helloName" placeholder="例如 PakePlus" value="PakePlus" />
+            <div class="actions">
+                <button class="primary" id="helloRun">执行</button>
+                <button class="ghost" id="helloExport">导出结果</button>
+            </div>
+            <div class="result" id="helloResult"><span class="label">尚未执行</span></div>
+        </div>
+    </section>
+
+    <section class="panel" id="panel-hash">
+        <div class="card">
+            <h2>哈希算法接口</h2>
+            <label class="field" for="hashText">待计算文本</label>
+            <textarea id="hashText">PakePlus demo service</textarea>
+            <div class="row" style="margin-top:10px">
+                <div>
+                    <label class="field" for="hashAlgorithm">算法</label>
+                    <select id="hashAlgorithm">
+                        <option value="SHA-256" selected>SHA-256</option>
+                        <option value="SHA-1">SHA-1</option>
+                        <option value="SHA-512">SHA-512</option>
+                        <option value="MD5">MD5</option>
+                    </select>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="primary" id="hashRun">计算摘要</button>
+                <button class="ghost" id="hashExport">导出结果</button>
+            </div>
+            <div class="result" id="hashResult"><span class="label">尚未执行</span></div>
+        </div>
+    </section>
+
+    <section class="panel" id="panel-sort">
+        <div class="card">
+            <h2>冒泡排序接口</h2>
+            <label class="field" for="sortValues">数组（逗号分隔）</label>
+            <input type="text" id="sortValues" value="5, 3, 8, 1, 9, 2, 7" />
+            <div class="row" style="margin-top:10px">
+                <div>
+                    <label class="field" for="sortOrder">排序方向</label>
+                    <select id="sortOrder">
+                        <option value="asc" selected>升序</option>
+                        <option value="desc">降序</option>
+                    </select>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="primary" id="sortRun">执行排序</button>
+                <button class="ghost" id="sortExport">导出结果</button>
+            </div>
+            <div class="result" id="sortResult"><span class="label">尚未执行</span></div>
+        </div>
+    </section>
+
+    <section class="panel" id="panel-track">
+        <div class="card">
+            <h2>调用情况报表</h2>
+            <div class="row">
+                <div>
+                    <label class="field" for="trackDimension">统计维度</label>
+                    <select id="trackDimension">
+                        <option value="user_type" selected>人员类型</option>
+                        <option value="user_level">人员层级</option>
+                        <option value="user_dept">人员部门</option>
+                        <option value="api">接口</option>
+                    </select>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="primary" id="trackRefresh">刷新报表</button>
+                <button class="ghost" id="trackExport">导出报表</button>
+            </div>
+            <div class="stats" style="margin-top:12px">
+                <div class="stat"><div class="k">总调用次数</div><div class="v" id="statTotal">-</div></div>
+                <div class="stat"><div class="k">调用人数</div><div class="v" id="statCallers">-</div></div>
+                <div class="stat"><div class="k">成功 / 失败</div><div class="v" id="statSuccess">-</div></div>
+                <div class="stat"><div class="k">平均耗时</div><div class="v" id="statElapsed">-</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="chart-title">折线图 · 近 12 小时调用趋势</div>
+            <canvas id="trendChart" height="180"></canvas>
+        </div>
+        <div class="card">
+            <div class="chart-title">柱状图 · 各分组调用次数</div>
+            <canvas id="barChart" height="180"></canvas>
+            <div class="chart-title">饼图 · 各分组占比</div>
+            <canvas id="pieChart" height="190"></canvas>
+            <div class="legend" id="pieLegend"></div>
+        </div>
+        <div class="card">
+            <div class="chart-title">最近调用明细</div>
+            <table>
+                <thead><tr><th>时间</th><th>调用人</th><th>部门</th><th>接口</th><th>结果</th></tr></thead>
+                <tbody id="recordBody"><tr><td colspan="5" class="hint">暂无数据</td></tr></tbody>
+            </table>
+            <div class="hint" style="margin-top:10px" id="trackHint">提示：可先调用上方三个接口，再刷新报表查看统计。</div>
+        </div>
+    </section>
+</main>
+
+<script>
+(function () {
+    'use strict';
+
+    var STORAGE_API_BASE = 'pakeplus.demo.apiBase';
+    var STORAGE_USER = 'pakeplus.demo.user';
+    var DEFAULT_FILE_API_BASE = 'http://10.0.2.2:8080';
+    var PALETTE = ['#2f6bff', '#12a35b', '#f5a623', '#e0483d', '#8b5cf6', '#0ea5e9', '#14b8a6', '#f472b6'];
+
+    function resolveApiBase() {
+        if (location.protocol === 'http:' || location.protocol === 'https:') {
+            return location.origin;
+        }
+        var saved = localStorage.getItem(STORAGE_API_BASE);
+        return saved ? saved : DEFAULT_FILE_API_BASE;
+    }
+
+    var API_BASE = resolveApiBase();
+
+    function resolveUser() {
+        if (window.PakePlusUser && window.PakePlusUser.userId) {
+            return window.PakePlusUser;
+        }
+        var saved = localStorage.getItem(STORAGE_USER);
+        if (saved) {
+            try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+        }
+        return { userId: 'u1001', userName: '张伟', userType: 'INTERNAL', userLevel: 'P7', userDept: '技术部' };
+    }
+
+    var USER = resolveUser();
+
+    function identityHeaders() {
+        return {
+            'X-User-Id': USER.userId,
+            'X-User-Name': encodeURIComponent(USER.userName),
+            'X-User-Type': USER.userType,
+            'X-User-Level': USER.userLevel,
+            'X-User-Dept': encodeURIComponent(USER.userDept)
+        };
+    }
+
+    function renderCallerBar() {
+        document.getElementById('callerBar').textContent =
+            '调用人：' + USER.userName + '（' + USER.userId + '） · ' +
+            USER.userType + ' · ' + USER.userLevel + ' · ' + USER.userDept;
+    }
+
+    function request(path, options) {
+        var config = options || {};
+        config.headers = Object.assign({}, config.headers || {}, identityHeaders());
+        if (config.body) {
+            config.headers['Content-Type'] = 'application/json';
+        }
+        return fetch(API_BASE + path, config).then(function (response) {
+            return response.text().then(function (text) {
+                var payload = null;
+                try { payload = text ? JSON.parse(text) : null; } catch (e) { payload = null; }
+                if (!response.ok || !payload || payload.code !== 200) {
+                    var message = payload && payload.message ? payload.message : ('请求失败（HTTP ' + response.status + '）');
+                    throw new Error(message);
+                }
+                return payload.data;
+            });
+        });
+    }
+
+    function showResult(id, lines, isError) {
+        var box = document.getElementById(id);
+        box.innerHTML = '';
+        if (isError) {
+            var errorLine = document.createElement('div');
+            errorLine.className = 'error';
+            errorLine.textContent = lines;
+            box.appendChild(errorLine);
+            return;
+        }
+        lines.forEach(function (line) {
+            var row = document.createElement('div');
+            var label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = line[0] + '：';
+            var value = document.createElement('span');
+            value.className = 'value';
+            value.textContent = line[1];
+            row.appendChild(label);
+            row.appendChild(value);
+            box.appendChild(row);
+        });
+    }
+
+    function exportUrl(module, params) {
+        var query = Object.keys(params || {}).map(function (key) {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+        }).join('&');
+        return API_BASE + '/api/demo/export/' + module + (query ? '?' + query : '');
+    }
+
+    function triggerDownload(url) {
+        var link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', '');
+        link.rel = 'noopener';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function switchTab(name) {
+        var tabs = document.querySelectorAll('.tab');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab') === name);
+        }
+        var panels = document.querySelectorAll('.panel');
+        for (var j = 0; j < panels.length; j++) {
+            panels[j].classList.toggle('active', panels[j].id === 'panel-' + name);
+        }
+        if (name === 'track') {
+            loadTrack();
+        }
+    }
+
+    document.querySelectorAll('.tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            switchTab(tab.getAttribute('data-tab'));
+        });
+    });
+
+    document.getElementById('helloRun').addEventListener('click', function () {
+        var name = document.getElementById('helloName').value.trim();
+        request('/api/demo/hello?name=' + encodeURIComponent(name))
+            .then(function (data) {
+                showResult('helloResult', [['问候语', data.greeting], ['服务器时间', data.server_time]]);
+            })
+            .catch(function (error) { showResult('helloResult', error.message, true); });
+    });
+
+    document.getElementById('helloExport').addEventListener('click', function () {
+        var name = document.getElementById('helloName').value.trim();
+        triggerDownload(exportUrl('hello', { name: name }));
+    });
+
+    document.getElementById('hashRun').addEventListener('click', function () {
+        var text = document.getElementById('hashText').value;
+        var algorithm = document.getElementById('hashAlgorithm').value;
+        request('/api/demo/hash', { method: 'POST', body: JSON.stringify({ text: text, algorithm: algorithm }) })
+            .then(function (data) {
+                showResult('hashResult', [
+                    ['算法', data.algorithm],
+                    ['摘要', data.digest],
+                    ['摘要长度', data.digest_length],
+                    ['原文长度', data.input_length],
+                    ['耗时(ms)', data.elapsed_ms]
+                ]);
+            })
+            .catch(function (error) { showResult('hashResult', error.message, true); });
+    });
+
+    document.getElementById('hashExport').addEventListener('click', function () {
+        var text = document.getElementById('hashText').value;
+        var algorithm = document.getElementById('hashAlgorithm').value;
+        triggerDownload(exportUrl('hash', { text: text, algorithm: algorithm }));
+    });
+
+    function parseValues(raw) {
+        return raw.split(/[,，\s]+/).filter(function (item) { return item.length > 0; }).map(function (item) {
+            var value = Number(item);
+            if (!Number.isFinite(value)) {
+                throw new Error('数组元素必须是数字：' + item);
+            }
+            return Math.trunc(value);
+        });
+    }
+
+    document.getElementById('sortRun').addEventListener('click', function () {
+        var values;
+        try {
+            values = parseValues(document.getElementById('sortValues').value);
+        } catch (error) {
+            showResult('sortResult', error.message, true);
+            return;
+        }
+        var order = document.getElementById('sortOrder').value;
+        request('/api/demo/sort', { method: 'POST', body: JSON.stringify({ values: values, order: order }) })
+            .then(function (data) {
+                showResult('sortResult', [
+                    ['原始数组', data.original.join(', ')],
+                    ['排序结果', data.sorted.join(', ')],
+                    ['比较次数', data.comparisons],
+                    ['交换次数', data.swaps],
+                    ['耗时(ms)', data.elapsed_ms]
+                ]);
+            })
+            .catch(function (error) { showResult('sortResult', error.message, true); });
+    });
+
+    document.getElementById('sortExport').addEventListener('click', function () {
+        var values;
+        try {
+            values = parseValues(document.getElementById('sortValues').value);
+        } catch (error) {
+            showResult('sortResult', error.message, true);
+            return;
+        }
+        triggerDownload(exportUrl('sort', {
+            values: values.join(','),
+            order: document.getElementById('sortOrder').value
+        }));
+    });
+
+    document.getElementById('trackExport').addEventListener('click', function () {
+        triggerDownload(exportUrl('track', { dimension: document.getElementById('trackDimension').value }));
+    });
+
+    document.getElementById('trackRefresh').addEventListener('click', loadTrack);
+    document.getElementById('trackDimension').addEventListener('change', loadTrack);
+
+    function loadTrack() {
+        var dimension = document.getElementById('trackDimension').value;
+        request('/api/demo/track/summary?dimension=' + encodeURIComponent(dimension))
+            .then(function (data) {
+                document.getElementById('statTotal').textContent = data.total;
+                document.getElementById('statCallers').textContent = data.caller_count;
+                document.getElementById('statSuccess').textContent = data.success_count + ' / ' + data.fail_count;
+                document.getElementById('statElapsed').textContent = data.avg_elapsed_ms + ' ms';
+                document.getElementById('trackHint').textContent =
+                    '统计维度：' + data.dimension_label + ' · 生成时间：' + data.generated_at;
+                drawLineChart(document.getElementById('trendChart'), data.trend);
+                drawBarChart(document.getElementById('barChart'), data.items);
+                drawPieChart(document.getElementById('pieChart'), data.items);
+                renderLegend(data.items);
+                if (data.total === 0) {
+                    document.getElementById('trackHint').textContent += '（暂未采集到调用，先执行一次接口调用吧）';
+                }
+            })
+            .catch(function (error) {
+                document.getElementById('trackHint').textContent = '报表加载失败：' + error.message;
+            });
+        request('/api/demo/track/records?limit=10')
+            .then(renderRecords)
+            .catch(function () { /* 明细失败不影响报表 */ });
+    }
+
+    function renderRecords(records) {
+        var body = document.getElementById('recordBody');
+        body.innerHTML = '';
+        if (!records || records.length === 0) {
+            body.innerHTML = '<tr><td colspan="5" class="hint">暂无调用记录</td></tr>';
+            return;
+        }
+        records.forEach(function (record) {
+            var row = document.createElement('tr');
+            var time = document.createElement('td');
+            time.textContent = (record.called_at || '').replace('T', ' ').substring(5, 16);
+            var name = document.createElement('td');
+            name.textContent = record.user_name;
+            var dept = document.createElement('td');
+            dept.textContent = record.user_dept;
+            var api = document.createElement('td');
+            api.textContent = (record.api_path || '').replace('/api/demo/', '');
+            var state = document.createElement('td');
+            state.innerHTML = record.success
+                ? '<span class="tag">成功</span>'
+                : '<span class="tag fail">失败</span>';
+            row.appendChild(time);
+            row.appendChild(name);
+            row.appendChild(dept);
+            row.appendChild(api);
+            row.appendChild(state);
+            body.appendChild(row);
+        });
+    }
+
+    function prepareCanvas(canvas, height) {
+        var ratio = window.devicePixelRatio || 1;
+        var width = canvas.clientWidth || canvas.parentNode.clientWidth || 320;
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        canvas.style.height = height + 'px';
+        var context = canvas.getContext('2d');
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        context.clearRect(0, 0, width, height);
+        return { ctx: context, width: width, height: height };
+    }
+
+    function drawLineChart(canvas, trend) {
+        var prepared = prepareCanvas(canvas, 180);
+        var ctx = prepared.ctx;
+        var width = prepared.width;
+        var height = prepared.height;
+        var padding = { top: 16, right: 10, bottom: 24, left: 30 };
+        var points = trend || [];
+        var maxValue = Math.max.apply(null, points.map(function (p) { return p.count; }).concat([1]));
+        var plotWidth = width - padding.left - padding.right;
+        var plotHeight = height - padding.top - padding.bottom;
+
+        ctx.strokeStyle = '#eef1f6';
+        ctx.lineWidth = 1;
+        for (var lineIndex = 0; lineIndex <= 4; lineIndex++) {
+            var y = padding.top + plotHeight * lineIndex / 4;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(width - padding.right, y);
+            ctx.stroke();
+        }
+        ctx.fillStyle = '#9aa3b2';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(String(maxValue), 4, padding.top + 8);
+
+        if (points.length === 0) {
+            return;
+        }
+        var stepX = points.length > 1 ? plotWidth / (points.length - 1) : 0;
+        var coordinates = points.map(function (point, index) {
+            return {
+                x: padding.left + stepX * index,
+                y: padding.top + plotHeight - (point.count / maxValue) * plotHeight
+            };
+        });
+
+        var gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + plotHeight);
+        gradient.addColorStop(0, 'rgba(47,107,255,.28)');
+        gradient.addColorStop(1, 'rgba(47,107,255,0)');
+        ctx.beginPath();
+        ctx.moveTo(coordinates[0].x, padding.top + plotHeight);
+        coordinates.forEach(function (point) { ctx.lineTo(point.x, point.y); });
+        ctx.lineTo(coordinates[coordinates.length - 1].x, padding.top + plotHeight);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.beginPath();
+        coordinates.forEach(function (point, index) {
+            if (index === 0) { ctx.moveTo(point.x, point.y); } else { ctx.lineTo(point.x, point.y); }
+        });
+        ctx.strokeStyle = '#2f6bff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        coordinates.forEach(function (point) {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 2.6, 0, Math.PI * 2);
+            ctx.fillStyle = '#2f6bff';
+            ctx.fill();
+        });
+
+        ctx.fillStyle = '#9aa3b2';
+        ctx.font = '9px sans-serif';
+        var labelStep = Math.max(1, Math.ceil(points.length / 4));
+        points.forEach(function (point, index) {
+            if (index % labelStep !== 0 && index !== points.length - 1) {
+                return;
+            }
+            var text = (point.bucket || '').substring(11, 16);
+            var textWidth = ctx.measureText(text).width;
+            ctx.fillText(text, Math.min(point.x - textWidth / 2, width - padding.right - textWidth), height - 8);
+        });
+    }
+
+    function drawBarChart(canvas, items) {
+        var prepared = prepareCanvas(canvas, 180);
+        var ctx = prepared.ctx;
+        var width = prepared.width;
+        var height = prepared.height;
+        var padding = { top: 16, right: 10, bottom: 28, left: 30 };
+        var data = (items || []).slice(0, 8);
+        var maxValue = Math.max.apply(null, data.map(function (item) { return item.count; }).concat([1]));
+        var plotWidth = width - padding.left - padding.right;
+        var plotHeight = height - padding.top - padding.bottom;
+
+        ctx.strokeStyle = '#eef1f6';
+        for (var lineIndex = 0; lineIndex <= 4; lineIndex++) {
+            var y = padding.top + plotHeight * lineIndex / 4;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(width - padding.right, y);
+            ctx.stroke();
+        }
+        if (data.length === 0) {
+            ctx.fillStyle = '#9aa3b2';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('暂无数据', padding.left, padding.top + 20);
+            return;
+        }
+        var slot = plotWidth / data.length;
+        var barWidth = Math.min(28, slot * 0.55);
+        data.forEach(function (item, index) {
+            var barHeight = (item.count / maxValue) * plotHeight;
+            var x = padding.left + slot * index + (slot - barWidth) / 2;
+            var y = padding.top + plotHeight - barHeight;
+            ctx.fillStyle = PALETTE[index % PALETTE.length];
+            var radius = Math.min(6, barWidth / 2, barHeight / 2);
+            ctx.beginPath();
+            ctx.moveTo(x, y + barHeight);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.lineTo(x + barWidth - radius, y);
+            ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + radius);
+            ctx.lineTo(x + barWidth, y + barHeight);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '10px sans-serif';
+            var valueText = String(item.count);
+            ctx.fillText(valueText, x + barWidth / 2 - ctx.measureText(valueText).width / 2, y - 4);
+
+            var label = String(item.key);
+            if (label.length > 5) { label = label.substring(0, 5) + '…'; }
+            var labelWidth = ctx.measureText(label).width;
+            ctx.fillStyle = '#9aa3b2';
+            ctx.fillText(label, Math.max(2, x + barWidth / 2 - labelWidth / 2), height - 10);
+        });
+    }
+
+    function drawPieChart(canvas, items) {
+        var prepared = prepareCanvas(canvas, 190);
+        var ctx = prepared.ctx;
+        var width = prepared.width;
+        var height = prepared.height;
+        var data = (items || []).filter(function (item) { return item.count > 0; });
+        if (data.length === 0) {
+            ctx.fillStyle = '#9aa3b2';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('暂无数据', 16, 40);
+            return;
+        }
+        var total = data.reduce(function (sum, item) { return sum + item.count; }, 0);
+        var centerX = width / 2;
+        var centerY = height / 2;
+        var radius = Math.min(width, height) / 2 - 18;
+        var startAngle = -Math.PI / 2;
+        data.forEach(function (item, index) {
+            var angle = (item.count / total) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, startAngle, startAngle + angle);
+            ctx.closePath();
+            ctx.fillStyle = PALETTE[index % PALETTE.length];
+            ctx.fill();
+            startAngle += angle;
+        });
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.fillStyle = '#1b1f27';
+        ctx.font = 'bold 14px sans-serif';
+        var totalText = String(total);
+        ctx.fillText(totalText, centerX - ctx.measureText(totalText).width / 2, centerY - 2);
+        ctx.fillStyle = '#9aa3b2';
+        ctx.font = '10px sans-serif';
+        var caption = '总调用';
+        ctx.fillText(caption, centerX - ctx.measureText(caption).width / 2, centerY + 14);
+    }
+
+    function renderLegend(items) {
+        var legend = document.getElementById('pieLegend');
+        legend.innerHTML = '';
+        (items || []).forEach(function (item, index) {
+            var entry = document.createElement('span');
+            var dot = document.createElement('i');
+            dot.style.background = PALETTE[index % PALETTE.length];
+            entry.appendChild(dot);
+            entry.appendChild(document.createTextNode(item.key + ' ' + item.count + '（' +
+                (item.ratio * 100).toFixed(1) + '%）'));
+            legend.appendChild(entry);
+        });
+    }
+
+    var initialized = false;
+
+    function init() {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+        renderCallerBar();
+        loadTrack();
+    }
+
+    window.addEventListener('resize', function () {
+        if (document.getElementById('panel-track').classList.contains('active')) {
+            loadTrack();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState !== 'loading') {
+        init();
+    }
+})();
+</script>
+</body>
+</html>
