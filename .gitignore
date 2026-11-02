@@ -35,6 +35,7 @@ out/
 # Gradle files
 .gradle/
 build/
+demo-service/target/
 
 # Local configuration file (sdk path, etc)
 local.properties
